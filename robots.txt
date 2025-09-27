@@ -1,0 +1,26 @@
+# Robots.txt for Sejal Memsab Makeover
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://sejal-memsab-makeover.com/sitemap.xml
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1
+
+# Specific rules for search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block access to admin areas if any
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Disallow: /*.log$
+Disallow: /*.tmp$

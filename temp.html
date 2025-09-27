@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Simple Store</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f9fc;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .card-content {
+      padding: 15px;
+    }
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .card p {
+      color: #555;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    .price {
+      font-weight: bold;
+      color: #2e8b57;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: #25D366;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .loading {
+      text-align: center;
+      font-size: 18px;
+      color: #555;
+      grid-column: 1 / -1;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      grid-column: 1 / -1;
+    }
+    header {
+      text-align: center;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛍️ My Store</h1>
+    <p>Sab kuch WhatsApp pe order karo!</p>
+  </header>
+
+  <div class="container" id="product-container">
+    <p class="loading">Loading products...</p>
+  </div>
+
+  <script>
+    // 🔗 Yaha apna Google Apps Script Web App URL daalo
+    const API_URL = "https://script.google.com/macros/s/AKfycbzy9P3qXWrf1HMx4kyDDvMpJbryNi27TpCHuPfhz2nIprAk4Dok2YrZC4S3ibls2wAi4Q/exec";
+
+    // 📱 Apna WhatsApp number daalo (with country code)
+    const YOUR_PHONE = "919876543210"; // Example: 91XXXXXXXXXX
+
+    async function loadProducts() {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("Network response was not ok");
+
+        const products = await res.json();
+        
+        if (products.error) {
+          document.getElementById("product-container").innerHTML = 
+            `<p class="error">Error: ${products.error}</p>`;
+          console.error(products.error);
+          return;
+        }
+
+        const container = document.getElementById("product-container");
+        container.innerHTML = "";
+
+        if (products.length === 0) {
+          container.innerHTML = `<p class="error">No products found. Please add in Google Sheet.</p>`;
+          return;
+        }
+
+        products.forEach(product => {
+          const msg = `I want to buy: ${product.name} - ₹${product.price}`;
+          const waLink = `https://wa.me/${YOUR_PHONE}?text=${encodeURIComponent(msg)}`;
+
+          container.innerHTML += `
+            <div class="card">
+              <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+              <div class="card-content">
+                <h3>${product.name}</h3>
+                <p class="price">₹${product.price}</p>
+                <p>${product.description}</p>
+                <a href="${waLink}" class="btn" target="_blank">🛒 Buy Now on WhatsApp</a>
+              </div>
+            </div>
+          `;
+        });
+
+      } catch (err) {
+        document.getElementById("product-container").innerHTML = 
+          `<p class="error">Failed to load products. Check console.</p>`;
+        console.error("Fetch Error:", err);
+      }
+    }
+
+    // Load products when page loads
+    loadProducts();
+  </script>
+</body>
+</html>

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinterest Gallery</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Loader Styles */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #F6ECE6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #8a2154;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .loader-text {
+            color: #8a2154;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #F6ECE6;
+            color: #333;
+            line-height: 1.6;
+        }
+
+
+        .gallery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: auto;
+            padding: 0 1rem;
+            margin-top: 20vh;
+        }
+
+        .pinterest-grid {
+            column-count: 5;
+            column-gap: 20px;
+            padding: 0 10px;
+        }
+
+        .pinterest-item {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 20px;
+            break-inside: avoid;
+            background: #F6ECE6;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .pinterest-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .pinterest-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .pinterest-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .item-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: flex-end;
+            padding: 1rem;
+        }
+
+        .pinterest-item:hover .item-overlay {
+            opacity: 1;
+        }
+
+        .item-info {
+            color: white;
+            text-align: left;
+        }
+
+        .item-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-description {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .pinterest-grid {
+                column-count: 4;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .pinterest-grid {
+                column-count: 3;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pinterest-grid {
+                column-count: 2;
+                column-gap: 15px;
+            }
+
+            .pinterest-item {
+                margin-bottom: 15px;
+            }
+
+            .header {
+                padding: 2rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .floating-action {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+                bottom: 1.5rem;
+                right: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pinterest-grid {
+                column-count: 1;
+                column-gap: 10px;
+            }
+
+            .pinterest-item {
+                margin-bottom: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-container {
+                margin: 1rem auto 2rem auto;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .brand-typography {
+            color: #D74E74;
+            font-family: 'Playfair Display', serif;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loader-overlay" id="loaderOverlay">
+        <span class="loader"></span>
+        <p class="loader-text">Loading Gallery...</p>
+    </div>
+
+    <nav class="navbar">
+        <div class="logo" onclick="window.location = 'index.html'"><img src="./images/logo.png" alt=""></div>
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="index.html#gallery">Gallery</a></li>
+            <li><a href="index.html#testimonials">Testimonials</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="index.html#enquire">Enquire</a></li>
+        </ul>
+        <div class="mobile-menu">
+            <ul style="list-style-type: none;">
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="index.html#gallery">Gallery</a></li>
+            <li><a href="index.html#testimonials">Testimonials</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="index.html#enquire">Enquire</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="gallery-container">
+        <div class="pinterest-grid" id="pinterestGrid">
+            <!-- Images will be loaded here -->
+        </div>
+    </div>
+
+
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <div class="lightbox-content">
+            <img id="lightboxImage" src="" alt="">
+        </div>
+    </div>
+
+    <footer class="footer-section">
+        <!-- Background Image -->
+        <!-- <img src="https://images.unsplash.com/photo-1560472355-536de3962603?w=1920&h=1080&fit=crop" 
+             alt="Beauty Background" class="footer-bg-image">
+         -->
+        <!-- Top & Bottom Overlays -->
+        <div class="footer-overlay-top"></div>
+        <div class="footer-overlay-bottom"></div>
+
+        <!-- Footer Content -->
+        <div class="footer-content">
+            <!-- Main Footer Content -->
+            <div class="footer-main">
+                <!-- Quote Section (Left) -->
+                <div class="quote-section">
+                    <p class="quote-text">
+                        EVERY MOMENT HOLDS<br>
+                        A STORY WAITING TO BE<br>
+                        CAPTURED
+                    </p>
+                </div>
+
+                <!-- Links Section (Right) -->
+                <div class="links-section">
+                    <div class="link-column">
+                        <ul class="link-list">
+                            <li><a href="index.html#home">Home</a></li>
+                            <li><a href="index.html#services">Services</a></li>
+                            <li><a href="index.html#gallery">Gallery</a></li>
+                            <li><a href="index.html#testimonials">Testimonials</a></li>
+                            <li><a href="index.html#about">About</a></li>
+                            <li><a href="index.html#enquire">Enquire</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- <div class="link-column">
+                        <h3>SERVICES</h3>
+                        <ul class="link-list">
+                            <li><a href="#">BRIDAL MAKEUP</a></li>
+                            <li><a href="#">PARTY MAKEUP</a></li>
+                            <li><a href="#">MEHANDI ART</a></li>
+                            <li><a href="#">HAIR STYLING</a></li>
+                            <li><a href="#">NAIL ART</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="link-column">
+                        <h3>COURSES</h3>
+                        <ul class="link-list">
+                            <li><a href="#">MAKEUP COURSE</a></li>
+                            <li><a href="#">MEHANDI CLASSES</a></li>
+                            <li><a href="#">HAIR STYLING</a></li>
+                            <li><a href="#">NAIL TECHNIQUES</a></li>
+                            <li><a href="#">SELF GROOMING</a></li>
+                        </ul>
+                    </div> -->
+                </div>
+            </div>
+
+            <!-- <div class="filter"></div> -->
+
+            <!-- Border Divider -->
+            <div class="footer-divider"></div>
+
+            <!-- Bottom Section -->
+            <div class="footer-bottom">
+                <div class="copyright">© 2025. SEJAL RIGHTS RESERVED.</div>
+                <div class="social-links">
+                    <a href="#" class="social-link">LINKEDIN</a>
+                    <a href="#" class="social-link">TWITTER</a>
+                    <a href="#" class="social-link">INSTAGRAM</a>
+                    <a href="#" class="social-link">FACEBOOK</a>
+                </div>
+            </div>
+
+            <!-- Large Brand Typography -->
+            <div class="brand-typography">
+                <h1 class="brand-main">SEJAL</h1>
+                <h2 class="brand-sub">MEMSAB MAKEOVER</h2>
+            </div>
+        </div>
+
+
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+        const supabaseUrl = "https://zyccqzskdnxbdujqrwfx.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5Y2NxenNrZG54YmR1anFyd2Z4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NTkzMDUsImV4cCI6MjA3NDEzNTMwNX0.EOcASUc2J_zUdvfzQNYuvtXFCREBliKDA6HxmKquPTk";
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        const pinterestGrid = document.getElementById('pinterestGrid');
+
+        // Create loading skeletons
+        function createSkeletons(count = 12) {
+            const skeletons = [];
+            for (let i = 0; i < count; i++) {
+                const height = Math.random() * 200 + 200; // Random heights between 200-400px
+                const skeleton = document.createElement('div');
+                skeleton.className = 'skeleton-item';
+                skeleton.style.height = `${height}px`;
+                skeletons.push(skeleton);
+            }
+            return skeletons;
+        }
+
+
+          // Hamburger Menu Toggle
+        const hamburger = document.querySelector('.hamburger');
+        const mobileMenu = document.querySelector('.mobile-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+
+
+
+
+
+        // Show loading skeletons
+        function showLoadingSkeletons() {
+            pinterestGrid.innerHTML = '';
+            const skeletons = createSkeletons();
+            skeletons.forEach(skeleton => pinterestGrid.appendChild(skeleton));
+        }
+
+        // Create Pinterest item
+        function createPinterestItem(imageUrl, fileName) {
+            const item = document.createElement('div');
+            item.className = 'pinterest-item';
+
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = fileName;
+            img.loading = 'lazy'; // Lazy loading for performance
+
+            // Add click handler for lightbox or zoom effect
+            item.addEventListener('click', () => {
+                // You can add lightbox functionality here
+                window.open(imageUrl, '_blank');
+            });
+
+            item.appendChild(img);
+            return item;
+        }
+
+        async function loadGallery() {
+            const loaderOverlay = document.getElementById('loaderOverlay');
+            let loadedImages = 0;
+            let totalImages = 0;
+
+            try {
+                const { data, error } = await supabase
+                    .storage
+                    .from('gallery-images')
+                    .list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
+
+                if (error) throw error;
+
+                // Clear loading skeletons
+                pinterestGrid.innerHTML = '';
+
+                if (data.length === 0) {
+                    pinterestGrid.innerHTML = "<div style='text-align: center; color: #8a2154; font-size: 1.2rem; margin: 50px 0;'>No images found yet. Upload some via admin panel!</div>";
+                    return;
+                }
+
+                totalImages = data.length;
+                pinterestGrid.innerHTML = ''; // Clear any existing content
+
+                // Load all images
+                const imagePromises = data.map(file => {
+                    return new Promise((resolve, reject) => {
+                        const { data: publicUrlData } = supabase
+                            .storage
+                            .from('gallery-images')
+                            .getPublicUrl(file.name);
+
+                        const img = new Image();
+                        img.src = publicUrlData.publicUrl;
+                        
+                        img.onload = () => {
+                            loadedImages++;
+                            const pinterestItem = createPinterestItem(publicUrlData.publicUrl, file.name);
+                            pinterestGrid.appendChild(pinterestItem);
+                            resolve();
+                        };
+                        
+                        img.onerror = () => {
+                            loadedImages++;
+                            reject(new Error(`Failed to load image: ${file.name}`));
+                        };
+                    });
+                });
+
+                // Wait for all images to load
+                await Promise.allSettled(imagePromises);
+                
+                // Hide loader with fade effect
+                loaderOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    loaderOverlay.style.display = 'none';
+                }, 500);
+
+            } catch (err) {
+                console.error("Gallery load error:", err);
+                pinterestGrid.innerHTML = "<div style='text-align: center; color: #d74971; font-size: 1.2rem; margin: 50px 0;'>Failed to load gallery. Please try again later.</div>";
+            }
+        }
+
+        // Handle window resize for responsive columns
+        function handleResize() {
+            const width = window.innerWidth;
+            const grid = document.querySelector('.pinterest-grid');
+
+            if (width <= 320) {
+                grid.style.columnCount = '1';
+            } else if (width <= 480) {
+                grid.style.columnCount = '2';
+            } else if (width <= 768) {
+                grid.style.columnCount = '2';
+            } else if (width <= 1024) {
+                grid.style.columnCount = '3';
+            } else {
+                grid.style.columnCount = '4';
+            }
+        }
+
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+
+        // Close lightbox when clicking outside the image
+        document.getElementById('lightbox').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeLightbox();
+            }
+        });
+
+
+
+        // Infinite scroll simulation
+
+        // Initialize
+        window.addEventListener('load', loadGallery);
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Set initial column count
+    </script>
+
+</body>
+
+</html>
