@@ -297,7 +297,7 @@
     </div>
 
     <nav class="navbar">
-        <div class="logo" onclick="window.location = 'index.html'"><img src="./images/logo.png" alt=""></div>
+        <div class="logo" onclick="window.location = 'index.html'"><img src="./images/logo.png" alt="" loading="lazy"></div>
         <div class="hamburger">
             <span class="bar"></span>
             <span class="bar"></span>
@@ -475,7 +475,7 @@
             skeletons.forEach(skeleton => pinterestGrid.appendChild(skeleton));
         }
 
-        // Create Pinterest item
+        // Create Pinterest item with enhanced lazy loading
         function createPinterestItem(imageUrl, fileName) {
             const item = document.createElement('div');
             item.className = 'pinterest-item';
@@ -483,12 +483,28 @@
             const img = document.createElement('img');
             img.src = imageUrl;
             img.alt = fileName;
-            img.loading = 'lazy'; // Lazy loading for performance
+            img.loading = 'lazy'; // Native lazy loading for performance
+            img.decoding = 'async'; // Async decoding for better performance
 
-            // Add click handler for lightbox or zoom effect
+            // Add loading placeholder
+            img.style.backgroundColor = '#f0f0f0';
+            img.style.minHeight = '200px';
+
+            // Enhanced click handler for lightbox or zoom effect
             item.addEventListener('click', () => {
                 // You can add lightbox functionality here
                 window.open(imageUrl, '_blank');
+            });
+
+            // Add error handling for failed image loads
+            img.addEventListener('error', () => {
+                img.alt = 'Image failed to load';
+                img.style.backgroundColor = '#e74c3c';
+                img.style.color = 'white';
+                img.style.display = 'flex';
+                img.style.alignItems = 'center';
+                img.style.justifyContent = 'center';
+                img.innerHTML = 'Failed to load';
             });
 
             item.appendChild(img);
@@ -597,8 +613,45 @@
 
         // Infinite scroll simulation
 
+        // Lazy loading fallback for older browsers
+        function setupLazyLoading() {
+            // Check if native lazy loading is supported
+            if ('loading' in HTMLImageElement.prototype) {
+                // Native lazy loading is supported
+                return;
+            }
+
+            // Fallback for older browsers using Intersection Observer
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src || img.src;
+                            img.classList.remove('lazy');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                });
+
+                // Observe all images with loading="lazy"
+                document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                    img.classList.add('lazy');
+                    imageObserver.observe(img);
+                });
+            } else {
+                // Fallback for very old browsers - load all images immediately
+                document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                    img.src = img.dataset.src || img.src;
+                });
+            }
+        }
+
         // Initialize
-        window.addEventListener('load', loadGallery);
+        window.addEventListener('load', () => {
+            loadGallery();
+            setupLazyLoading(); // Setup lazy loading fallback
+        });
         window.addEventListener('resize', handleResize);
         handleResize(); // Set initial column count
     </script>

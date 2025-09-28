@@ -969,13 +969,14 @@ body {
   min-height: 100vh;
   padding: 40px 20px;
   overflow: hidden;
+  margin-top: 5vh;
 }
 .about-me .container {
   display: flex;
   flex-direction: row;
   max-width: 1200px;
   width: 100%;
-  height: 80vh;
+  height: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   border: 1px solid #d8a7b1;
@@ -985,13 +986,16 @@ body {
   flex: 1;
   position: relative;
   height: 100%;
+    display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .image-side img {
   position: relative;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+
 }
 .about-me .overlay {
   position: absolute;
@@ -1155,7 +1159,6 @@ body {
   object-fit: cover;
   transition: transform 0.3s;
   will-change: transform;
-  opacity: 0.8;
 }
 .sm-floating-icon {
   position: absolute;
@@ -1233,6 +1236,11 @@ body {
   font-size: 0.95rem;
   margin-bottom: 20px;
   line-height: 1.5;
+  max-width: 90%;
+  backdrop-filter: blur(10px);
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: solid 1px;
 }
 .sm-enroll-btn {
   background: linear-gradient(135deg, var(--sm-primary), #f4d03f);
@@ -1369,6 +1377,10 @@ body {
   .sm-course-description {
     font-size: 0.85rem;
     margin-bottom: 15px;
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: solid;
   }
   .sm-enroll-btn {
     padding: 8px 16px;
@@ -2269,6 +2281,80 @@ body {
     }
   }
 }
+
+/* Lazy Loading Styles */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+img[loading="lazy"].loaded,
+img[loading="lazy"]:not(.lazy) {
+  opacity: 1;
+}
+
+/* Loading placeholder for images */
+.lazy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  z-index: 1;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Image error state */
+img[loading="lazy"].error {
+  background-color: #e74c3c !important;
+  color: white;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+img[loading="lazy"].error::after {
+  content: 'Failed to load';
+}
+
+/* Smooth loading transition for all images */
+img {
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease;
+}
+
+/* Optimize image rendering */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Progressive loading effect */
+@media (prefers-reduced-motion: no-preference) {
+  img[loading="lazy"] {
+    filter: blur(5px);
+    transform: scale(1.02);
+  }
+
+  img[loading="lazy"]:not(.lazy),
+  img[loading="lazy"].loaded {
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
 .sm-contact-success-message {
   position: absolute;
   opacity: 0;
@@ -2855,7 +2941,7 @@ body {
   }
   .gallery-temp-polaroid img {
     width: 100%;
-    height: 100px;
+    height: 100%;
     object-fit: cover;
   }
   .gallery-temp-polaroid-text {
@@ -2927,7 +3013,7 @@ body {
     padding: 10px 10px 45px;
   }
   .polaroid img {
-    height: 110px;
+    height: 100%;
   }
   .polaroid-text {
     font-size: 9px;

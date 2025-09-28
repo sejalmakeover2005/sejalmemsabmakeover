@@ -1,6 +1,0 @@
-- [x] Analyze current code structure and identify issues
-- [x] Fix mobile CTA button visibility (frame image hiding explore now button)
-- [x] Add hamburger menu closing option for mobile devices
-- [x] Make about me section responsive
-- [x] Fix "hey im sejal" text responsiveness (prevent overflow from about box)
-- [x] Test responsive behavior across different screen sizes
