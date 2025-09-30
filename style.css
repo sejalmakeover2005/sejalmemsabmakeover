@@ -1232,6 +1232,7 @@ body {
   border: 1px solid #d16ba5;
   padding: 10px 20px;
   border-radius: 10px;
+  margin-top: 2vh;
 }
 .sm-course-description {
   font-size: 0.95rem;
